@@ -1,7 +1,8 @@
+use na::DVector;
 use serde::{Deserialize, Serialize};
 
 use super::{err::Error, Vector};
-
+use nalgebra as na;
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum Distance {
     Dot,
@@ -19,6 +20,7 @@ impl Distance {
         }
     }
 
+    /// calculate distance based on Distance Type
     pub fn calculate(&self, a: &Vector, b: &Vector) -> f32 {
         assert_eq!(a.0.len(), b.0.len());
 
@@ -33,6 +35,7 @@ impl Distance {
 fn calculate_dot(a: &Vector, b: &Vector) -> f32 {
     a.0.iter().zip(b.0.iter()).map(|(x, y)| x * y).sum::<f32>()
 }
+
 fn calculate_cosine(a: &Vector, b: &Vector) -> f32 {
     let dot_product: f32 = a.0.iter().zip(b.0.iter()).map(|(x, y)| x * y).sum();
     let magnitude_a: f32 = a.0.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
@@ -40,8 +43,29 @@ fn calculate_cosine(a: &Vector, b: &Vector) -> f32 {
 
     dot_product / (magnitude_a * magnitude_b)
 }
+
 fn calculate_euclidean(a: &Vector, b: &Vector) -> f32 {
     a.0.iter().zip(b.0.iter()).map(|(a, b)| (a - b).powi(2)).sum::<f32>().sqrt()
+}
+
+fn calculate_dot_accelerate(a: &Vector, b: &Vector) -> f32 {
+    let (v1, v2) =
+        (na::DVector::from(a.0.clone()), na::DVector::from(b.0.clone())); // TODO(noneback): remove it.
+    v1.dot(&v2)
+}
+
+fn calculate_cosine_accelerate(a: &Vector, b: &Vector) -> f32 {
+    let dot_product: f32 = a.0.iter().zip(b.0.iter()).map(|(x, y)| x * y).sum();
+    let magnitude_a: f32 = a.0.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
+    let magnitude_b: f32 = b.0.iter().map(|y| y.powi(2)).sum::<f32>().sqrt();
+
+    dot_product / (magnitude_a * magnitude_b)
+}
+
+fn calculate_euclidean_accelerate(a: &Vector, b: &Vector) -> f32 {
+    let (v1, v2) =
+        (na::DVector::from(a.0.clone()), na::DVector::from(b.0.clone())); // TODO(noneback): remove it.
+    v1.metric_distance(&v2)
 }
 
 #[cfg(test)]

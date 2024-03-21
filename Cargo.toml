@@ -22,6 +22,7 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 sled = "0.34.7"
+nalgebra = "0.32.4"
 
 # Utilities.
 rayon = "1.8.0"
